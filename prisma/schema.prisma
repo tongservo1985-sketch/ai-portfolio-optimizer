@@ -1,0 +1,43 @@
+// Database Schema for the Freelance AI Assistant
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String      @id @default(cuid())
+  email        String      @unique
+  name         String?
+  portfolio    Project[]
+  proposals    Proposal[]
+  ai_settings  Json?       // Stores tone of voice, preferred industries
+}
+
+model Project {
+  id           String      @id @default(cuid())
+  userId       String
+  title        String
+  description  String
+  imageUrl     String
+  tags         String[]    // AI generated tags
+  vectorId     String?     // Reference to Vector DB entry
+  user         User        @relation(fields: [userId], references: [id])
+}
+
+model Proposal {
+  id           String      @id @default(cuid())
+  userId       String
+  clientName   String
+  jobDetails   String      // The original brief from client
+  selectedIds  String[]    // IDs of projects chosen by AI
+  generatedText String     // AI generated pitch
+  slug         String      @unique // Unique link for the client
+  views        Int         @default(0)
+  user         User        @relation(fields: [userId], references: [id])
+  createdAt    DateTime    @default(now())
+}
