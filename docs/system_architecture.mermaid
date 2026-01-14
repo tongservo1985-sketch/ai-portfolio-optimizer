@@ -1,0 +1,13 @@
+graph TD
+    A[Freelancer Assets] -->|Upload| B(AI Tagging Service)
+    B --> C[(Vector Database - Weaviate/Pinecone)]
+    
+    D[Client Job Description] -->|Input| E(AI Analysis Engine)
+    E -->|Search Query| C
+    
+    C -->|Relevant Assets| F(Personalization Engine)
+    F -->|Template Injection| G[Dynamic Portfolio Link / PDF]
+    
+    G --> H[Client]
+    H -->|Interaction Data| I[Analytics Engine]
+    I -->|Refine Strategy| F
