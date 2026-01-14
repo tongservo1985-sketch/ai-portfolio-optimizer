@@ -1,0 +1,71 @@
+name: Production Deployment (OVERLORD)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          pip install flake8 pytest
+          pip install -r backend/requirements.txt
+      - name: Lint & Test Backend
+        run: |
+          flake8 backend/
+          pytest backend/tests/
+
+  build-and-push:
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        component: [backend, frontend, worker]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Build and Push ${{ matrix.component }}
+        uses: docker/build-push-action@v5
+        with:
+          context: ./${{ matrix.component }}
+          push: true
+          tags: |
+            overlord-ai/${{ matrix.component }}:latest
+            overlord-ai/${{ matrix.component }}:${{ github.sha }}
+
+  deploy-to-prod:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Update Kubeconfig
+        run: aws eks update-kubeconfig --name overlord-production-cluster
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl set image deployment/overlord-backend backend=overlord-ai/backend:${{ github.sha }} -n production
+          kubectl set image deployment/overlord-frontend frontend=overlord-ai/frontend:${{ github.sha }} -n production
+          kubectl set image deployment/overlord-worker worker=overlord-ai/worker:${{ github.sha }} -n production
+          kubectl rollout status deployment/overlord-backend -n production
