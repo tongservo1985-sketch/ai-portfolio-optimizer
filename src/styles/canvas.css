@@ -1,0 +1,29 @@
+/* Styling for the generative portfolio container */
+
+.canvas-container {
+    cursor: crosshair;
+    background-color: #f4f4f4;
+}
+
+canvas {
+    display: block;
+    width: 100% !important;
+    height: auto !important;
+}
+
+/* Scrollbar styling for a "Design" feel */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #000;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
