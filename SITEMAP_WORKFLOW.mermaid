@@ -1,0 +1,32 @@
+graph TD
+    A[Dashboard] --> B[Create New Custom Portfolio]
+    
+    subgraph "Input Phase"
+    B --> C{Input Type}
+    C -->|Paste Text| D[AI Brief Analyzer]
+    C -->|Paste URL| D
+    C -->|Upload PDF| D
+    end
+
+    subgraph "AI Processing"
+    D --> E[Extract Key Requirements]
+    E --> F[Query Asset Repository]
+    F --> G[Semantic Matchmaking Engine]
+    G --> H[Generate Draft Portfolio]
+    end
+
+    subgraph "Customization Phase"
+    H --> I[Review Mode]
+    I --> J[AI-Generated Pitch/Intro]
+    I --> K[Curated Projects List]
+    K --> L[Manual Add/Remove/Reorder]
+    J --> M[Edit Text]
+    end
+
+    subgraph "Publishing & Tracking"
+    L --> N[Generate Secure Link]
+    M --> N
+    N --> O[Live Portfolio Page]
+    O --> P[Analytics Tracking]
+    P --> Q[Designer Notification: Link Opened]
+    end
