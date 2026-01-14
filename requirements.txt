@@ -1,0 +1,8 @@
+torch
+torchvision
+transformers
+pillow
+numpy
+scikit-learn
+opencv-python-headless
+python-dotenv
